@@ -1,0 +1,167 @@
+<!-- empty wishlist -->
+<div *ngIf="cartItems.length==0" class="container text-center">
+    <div class="col">
+        <img src="https://cakefactory24x7.com/bakery/images/emty.gif" alt="empty-image">
+    </div>
+    <div class="col text-danger ">
+        <h2 class="fw-bolder fs-5 animate__animated animate__bounceInDown">Your Cart is Empty!!!</h2>
+        <button routerLink="" class="btn btn-warning mt-5">Shop More</button>
+    </div>
+</div>
+
+<!-- cart design -->
+
+<div *ngIf="cartItems.length!=0" class="container " style="margin-top: 150px;">
+    <div class="row">
+        <div class="col-lg-7 border p-3 rounded me-1">
+            <!-- cart table -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>image</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of cartItems,let i=index">
+                        <th>{{i+1}}</th>
+                        <th>{{item.title.slice(0,20)}}</th>
+                        <th><img style="width: 80px; height: 80px;" [src]="item.image" [alt]="item.title"></th>
+
+                        <th>
+                            <div class="d-flex align-items-center">
+                                <!-- decrement quantity btn -->
+                                <button (click)="decrCartItem(item.id)" class="btn fw-bolder">-</button>
+                                <input type="text" class="form-control" style="max-width: 3rem;" readonly="1"
+                                    [value]="item.quantity">
+                                <!-- increment quantity btn -->
+                                <button (click)="incrCartItem(item.id)" class="btn fw-bolder">+</button>
+                            </div>
+                        </th>
+
+                        <th>${{item.price}}</th>
+                        <th><i (click)="removeCartitem(item.id)" class="fa-solid fa-trash text-danger"></i></th>
+                    </tr>
+                </tbody>
+
+            </table>
+
+            <!-- more action div -->
+            <div class="d-flex flex-row-reverse me-3">
+
+                <!-- shop more -->
+                <button class="btn btn-success " routerLink="">Shop More</button>
+
+                <!-- empty cart -->
+                <button (click)="emptyCart()" class="btn btn-danger me-3"><i class="fa-solid fa-trash me-1"></i>Empty
+                    Cart</button>
+
+            </div>
+        </div>
+        <div class="col-lg-4 ms-auto mt-5 p-3 rounded">
+            <!-- check out -->
+            <!-- <h4>Price:$.{{cartTotalPrice}}</h4>
+           <h6>Discount: 10Rs</h6> -->
+            <div>
+                <h1><span class="fw-bolder fs-2 text-danger">Sub Total:${{cartTotalPrice}}</span></h1>
+                <div class="d-grid gap-2">
+                    <button data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-primary"
+                        type="button">Proceed to Buy</button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<!-- check out model design -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 text-primary" id="exampleModalLabel">Check out details</h1>
+                <button (click)="modalClose()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form *ngIf="!paymentBtn" [formGroup]="addressForm" (ngSubmit)="submit()">
+                    <h6 class="text-success">Enter Your Devlivery Address</h6>
+                    <div class="mb-3">
+                        <!-- <label for="exampleInputEmail1" class="form-label">Username</label> -->
+                        <input name="username" formControlName="username" type="text" class="form-control" id="exampleInputEmail1" placeholder="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <!-- <label for="exampleInputPassword1" class="form-label">Apartment/Flat No.</label> -->
+                        <input name="Addr1" formControlName="Addr1" type="text" class="form-control" id="exampleInputPassword1"
+                            placeholder="Apartment/Flat No." required>
+                    </div>
+                    <div class="mb-3 ">
+                        <input  name="Addr2" formControlName="Addr2" type="text" class="form-control" id="exampleCheck1" placeholder="Street Name" required>
+                        <!-- <label class="form-check-label" for="exampleCheck1">Street Name</label> -->
+                    </div>
+                    <div class="mb-3 ">
+                        <input  name="state" formControlName="state" type="text" class="form-control" id="exampleCheck1" placeholder="State" required>
+                        <!-- <label class="form-check-label" for="exampleCheck1">State</label> -->
+                    </div>
+
+                    <div >
+                        <input (click)="submit()" class="btn btn-primary" type="submit" value="proceed to paymet" required>
+                        <!-- <label class="form-check-label" for="exampleCheck1">State</label> -->
+                    </div>
+
+                </form>
+
+
+                <!-- delivery address -->
+
+                <div *ngIf="paymentBtn" class="mt-3">
+                    <!-- <h6 class="text-success">Payment Details</h6> -->
+                    <h5>Delivery Address</h5>
+                    <h6>{{user.username}}</h6>
+                    <p>{{user.Addr1}},{{user.Addr2}}</p>
+                    <p>{{user.state}}</p>
+                </div>
+
+
+
+                <div *ngIf="paymentBtn" class="d-flex justify-content-between mt-3">
+                    <h4  class="text-danger fw-bolder">Total Amount: $ {{finalAmount}}</h4>
+                    <button *ngIf="offerTagStatus" (click)="viewOffers()"  class="btn text-primary"><i class="fa-solid fa-tag fa-fade"></i> Offers</button>
+                </div>
+
+               
+                <!-- offers -->
+                <div *ngIf="offerStatus" class="d-flex justify-content-evenly mt-3">
+                    <img (click)="discount50()" *ngIf="cartTotalPrice>=500"  width="100px" height="100px"
+                        src="https://www.elegantthemes.com/blog/wp-content/uploads/2019/02/featured-woocomerce-coupons.png"
+                        alt="special Offer">
+                    <img (click)=" discount10()" *ngIf="cartTotalPrice<=500" width="100px" height="100px"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOW_iNeGx0Dv83pgx4Lfi5r3x7y5RzzYMr2yFpDvB61PmHWvOVU7libkmJfBw3LX4DP18&usqp=CAU"
+                        alt="special Offer">
+
+                </div>
+            </div>
+
+            <div *ngIf="showSuccess" class="text-center text-success fs-3">Payment Successfully Recieved</div>
+            <div *ngIf="showCancel" class="text-center text-danger fs-3">Your transaction has been canceled!!!</div>
+            <div *ngIf="showError" class="text-center text-danger fs-3">Transaction Failed</div>
+
+            <!-- paypal -->
+            <div *ngIf="makePaymentStatus" class="modal-footer">
+                <!-- success msg -->
+              
+                <ngx-paypal [config]="payPalConfig"></ngx-paypal>
+            </div>
+            <div *ngIf="paymentBtn" class="modal-footer">
+                <button *ngIf="!makePaymentStatus" (click)="makepayment()" type="button" class="btn btn-primary">Make Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
